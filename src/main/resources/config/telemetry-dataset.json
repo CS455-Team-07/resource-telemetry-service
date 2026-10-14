@@ -1,0 +1,169 @@
+{
+  "resources": [
+    {
+      "externalResourceId": "gpu-node-01",
+      "currentHealth": {
+        "externalResourceId": "gpu-node-01",
+        "healthStatus": "HEALTHY",
+        "gpuUtilizationPct": 42.5,
+        "gpuMemoryUtilizationPct": 65.0,
+        "temperatureCelsius": 68.0,
+        "powerDrawWatts": 240.0,
+        "timestamp": "2026-10-14T16:50:00Z",
+        "dataSource": "DEMO_DETERMINISTIC_FIXTURE",
+        "isDemonstrationData": true
+      },
+      "historicalMeasurements": [
+        {
+          "timestamp": "2026-10-10T10:00:00Z",
+          "gpuUtilizationPct": 78.0,
+          "gpuMemoryUtilizationPct": 70.0,
+          "temperatureCelsius": 69.0,
+          "powerDrawWatts": 260.0
+        },
+        {
+          "timestamp": "2026-10-10T10:15:00Z",
+          "gpuUtilizationPct": 82.0,
+          "gpuMemoryUtilizationPct": 75.0,
+          "temperatureCelsius": 70.0,
+          "powerDrawWatts": 275.0
+        },
+        {
+          "timestamp": "2026-10-10T10:30:00Z",
+          "gpuUtilizationPct": 94.0,
+          "gpuMemoryUtilizationPct": 81.0,
+          "temperatureCelsius": 74.0,
+          "powerDrawWatts": 290.0
+        },
+        {
+          "timestamp": "2026-10-10T10:45:00Z",
+          "gpuUtilizationPct": 88.0,
+          "gpuMemoryUtilizationPct": 80.0,
+          "temperatureCelsius": 72.0,
+          "powerDrawWatts": 280.0
+        },
+        {
+          "timestamp": "2026-10-10T11:00:00Z",
+          "gpuUtilizationPct": 85.0,
+          "gpuMemoryUtilizationPct": 78.0,
+          "temperatureCelsius": 71.0,
+          "powerDrawWatts": 270.0
+        },
+        {
+          "timestamp": "2026-10-10T11:15:00Z",
+          "gpuUtilizationPct": 80.0,
+          "gpuMemoryUtilizationPct": 76.0,
+          "temperatureCelsius": 70.0,
+          "powerDrawWatts": 265.0
+        },
+        {
+          "timestamp": "2026-10-10T11:30:00Z",
+          "gpuUtilizationPct": 75.0,
+          "gpuMemoryUtilizationPct": 72.0,
+          "temperatureCelsius": 69.0,
+          "powerDrawWatts": 255.0
+        },
+        {
+          "timestamp": "2026-10-10T11:45:00Z",
+          "gpuUtilizationPct": 74.0,
+          "gpuMemoryUtilizationPct": 71.0,
+          "temperatureCelsius": 68.0,
+          "powerDrawWatts": 250.0
+        },
+        {
+          "timestamp": "2026-10-11T14:00:00Z",
+          "gpuUtilizationPct": 55.0,
+          "gpuMemoryUtilizationPct": 45.0,
+          "temperatureCelsius": 62.0,
+          "powerDrawWatts": 210.0
+        },
+        {
+          "timestamp": "2026-10-11T14:15:00Z",
+          "gpuUtilizationPct": 60.0,
+          "gpuMemoryUtilizationPct": 48.0,
+          "temperatureCelsius": 64.0,
+          "powerDrawWatts": 220.0
+        },
+        {
+          "timestamp": "2026-10-11T14:30:00Z",
+          "gpuUtilizationPct": 58.0,
+          "gpuMemoryUtilizationPct": 47.0,
+          "temperatureCelsius": 63.0,
+          "powerDrawWatts": 215.0
+        }
+      ]
+    },
+    {
+      "externalResourceId": "gpu-node-02",
+      "currentHealth": {
+        "externalResourceId": "gpu-node-02",
+        "healthStatus": "DEGRADED",
+        "gpuUtilizationPct": 95.0,
+        "gpuMemoryUtilizationPct": 98.0,
+        "temperatureCelsius": 86.5,
+        "powerDrawWatts": 310.0,
+        "timestamp": "2026-10-14T16:50:00Z",
+        "dataSource": "DEMO_DETERMINISTIC_FIXTURE",
+        "isDemonstrationData": true
+      },
+      "historicalMeasurements": [
+        {
+          "timestamp": "2026-10-09T08:00:00Z",
+          "gpuUtilizationPct": 91.0,
+          "gpuMemoryUtilizationPct": 94.0,
+          "temperatureCelsius": 82.0,
+          "powerDrawWatts": 295.0
+        },
+        {
+          "timestamp": "2026-10-09T08:15:00Z",
+          "gpuUtilizationPct": 93.0,
+          "gpuMemoryUtilizationPct": 95.0,
+          "temperatureCelsius": 84.0,
+          "powerDrawWatts": 300.0
+        },
+        {
+          "timestamp": "2026-10-09T08:30:00Z",
+          "gpuUtilizationPct": 96.0,
+          "gpuMemoryUtilizationPct": 97.0,
+          "temperatureCelsius": 85.0,
+          "powerDrawWatts": 305.0
+        },
+        {
+          "timestamp": "2026-10-09T08:45:00Z",
+          "gpuUtilizationPct": 97.0,
+          "gpuMemoryUtilizationPct": 98.0,
+          "temperatureCelsius": 86.0,
+          "powerDrawWatts": 310.0
+        },
+        {
+          "timestamp": "2026-10-09T09:00:00Z",
+          "gpuUtilizationPct": 95.0,
+          "gpuMemoryUtilizationPct": 96.0,
+          "temperatureCelsius": 85.0,
+          "powerDrawWatts": 305.0
+        },
+        {
+          "timestamp": "2026-10-09T09:15:00Z",
+          "gpuUtilizationPct": 94.0,
+          "gpuMemoryUtilizationPct": 95.0,
+          "temperatureCelsius": 84.0,
+          "powerDrawWatts": 300.0
+        },
+        {
+          "timestamp": "2026-10-09T09:30:00Z",
+          "gpuUtilizationPct": 92.0,
+          "gpuMemoryUtilizationPct": 93.0,
+          "temperatureCelsius": 83.0,
+          "powerDrawWatts": 298.0
+        },
+        {
+          "timestamp": "2026-10-09T09:45:00Z",
+          "gpuUtilizationPct": 90.0,
+          "gpuMemoryUtilizationPct": 92.0,
+          "temperatureCelsius": 82.0,
+          "powerDrawWatts": 295.0
+        }
+      ]
+    }
+  ]
+}
