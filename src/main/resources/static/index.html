@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRLBS Telemetry Monitor | IIT Kanpur</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0e17;
+            --bg-surface: #121826;
+            --bg-card: #182234;
+            --bg-card-hover: #1f2c42;
+            --border-subtle: #233149;
+            --border-highlight: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #06b6d4;
+            --status-healthy: #10b981;
+            --status-healthy-bg: rgba(16, 185, 129, 0.15);
+            --status-degraded: #f43f5e;
+            --status-degraded-bg: rgba(244, 63, 94, 0.15);
+            --status-warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+        }
+
+        /* Top Header */
+        header {
+            background: linear-gradient(180deg, rgba(18, 24, 38, 0.95) 0%, rgba(10, 14, 23, 0.85) 100%);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .header-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+            font-size: 1.25rem;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pulse-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #34d399;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse-animation 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-animation {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-refresh {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-refresh:hover {
+            background: var(--border-subtle);
+            border-color: var(--accent-blue);
+        }
+
+        /* Container */
+        main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Overview KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-surface);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-blue);
+            color: #030712;
+        }
+
+        /* Node Cards Grid */
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .node-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .node-card.healthy {
+            border-top: 3px solid var(--status-healthy);
+        }
+
+        .node-card.degraded {
+            border-top: 3px solid var(--status-degraded);
+        }
+
+        .node-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .node-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .node-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+        }
+
+        .badge-healthy {
+            background: var(--status-healthy-bg);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-degraded {
+            background: var(--status-degraded-bg);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        /* Metric Bars */
+        .metric-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .metric-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-healthy {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .bar-warning {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .bar-danger {
+            background: linear-gradient(90deg, #f43f5e, #fb7185);
+        }
+
+        /* Stats Grid Inside Card */
+        .card-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            background: var(--bg-card);
+            padding: 0.85rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .stat-item-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-item-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .node-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: auto;
+        }
+
+        .samples-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .btn-history {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--accent-blue);
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-history:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        /* API Quick Ref */
+        .api-ref {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .api-ref-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .api-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .api-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            background: var(--bg-card);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--accent-cyan);
+            word-break: break-all;
+        }
+
+        .api-method {
+            background: #0284c7;
+            color: #fff;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        table.history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        table.history-table th {
+            text-align: left;
+            padding: 0.65rem 0.75rem;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        table.history-table td {
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        table.history-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <div>
+                    <div class="brand-title">MRLBS Telemetry Monitor</div>
+                    <div class="brand-subtitle">Indian Institute of Technology Kanpur &bull; Hardware Sensor Feeds</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="pulse-badge">
+                    <span class="pulse-dot"></span>
+                    <span>Live Telemetry Feed</span>
+                </div>
+                <button class="btn-refresh" id="btnRefresh" onclick="fetchTelemetryData()">
+                    <span>↻</span>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- KPI Summary Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">Monitored Nodes</span>
+                <span class="kpi-value" id="kpiTotalNodes">-</span>
+                <span class="kpi-sub">Total active hardware endpoints</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Healthy Units</span>
+                <span class="kpi-value" style="color: #34d399;" id="kpiHealthy">-</span>
+                <span class="kpi-sub">Nominal temperatures & load</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Degraded Units</span>
+                <span class="kpi-value" style="color: #fb7185;" id="kpiDegraded">-</span>
+                <span class="kpi-sub">Thermal throttling or memory pressure</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Average GPU Temp</span>
+                <span class="kpi-value" style="color: #38bdf8;" id="kpiAvgTemp">-</span>
+                <span class="kpi-sub">Sensor thermal average</span>
+            </div>
+        </div>
+
+        <!-- Section Controls -->
+        <div class="section-header">
+            <h2 class="section-title">Hardware Telemetry Nodes</h2>
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="setFilter('ALL', this)">All Nodes</button>
+                <button class="filter-btn" onclick="setFilter('HEALTHY', this)">Healthy</button>
+                <button class="filter-btn" onclick="setFilter('DEGRADED', this)">Degraded</button>
+            </div>
+        </div>
+
+        <!-- Node Cards Grid -->
+        <div class="nodes-grid" id="nodesContainer">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
+                Connecting to hardware telemetry feeds...
+            </div>
+        </div>
+
+        <!-- REST API Quick Reference -->
+        <div class="api-ref">
+            <h3 class="api-ref-title"><span>📡</span> REST Endpoints Available (JSON)</h3>
+            <div class="api-list">
+                <div class="api-item">
+                    <span class="api-method">GET</span>
+                    <span>/api/telemetry/resources</span>
+                </div>
+                <div class="api-item">
+                    <span class="api-method">GET</span>
+                    <span>/api/telemetry/resources/{externalResourceId}/health</span>
+                </div>
+                <div class="api-item">
+                    <span class="api-method">GET</span>
+                    <span>/api/telemetry/resources/{externalResourceId}/history?startTime=...&endTime=...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Historical Telemetry Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Historical Measurements</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <p style="color: var(--text-muted); text-align: center;">Loading historical timeline...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Multi-Resource Lab Booking System (MRLBS) &bull; Standalone Hardware Telemetry Service &bull; IIT Kanpur
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        let allNodes = [];
+        let currentFilter = 'ALL';
+
+        async function fetchTelemetryData() {
+            const btn = document.getElementById('btnRefresh');
+            btn.style.opacity = '0.5';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/telemetry/resources');
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                allNodes = await response.json();
+                renderDashboard();
+            } catch (err) {
+                console.error('Failed to load telemetry:', err);
+                document.getElementById('nodesContainer').innerHTML = `
+                    <div style="grid-column: 1 / -1; background: rgba(244, 63, 94, 0.1); border: 1px solid var(--status-degraded); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                        <p style="color: #fb7185; font-weight: 600;">Failed to fetch telemetry data: ${err.message}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Ensure the service is running and accessible.</p>
+                    </div>
+                `;
+            } finally {
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+        }
+
+        function renderDashboard() {
+            // Update KPIs
+            const total = allNodes.length;
+            const healthy = allNodes.filter(n => n.healthStatus === 'HEALTHY').length;
+            const degraded = allNodes.filter(n => n.healthStatus === 'DEGRADED').length;
+            const avgTemp = total > 0 
+                ? (allNodes.reduce((acc, n) => acc + (n.temperatureCelsius || 0), 0) / total).toFixed(1) + '°C'
+                : 'N/A';
+
+            document.getElementById('kpiTotalNodes').textContent = total;
+            document.getElementById('kpiHealthy').textContent = healthy;
+            document.getElementById('kpiDegraded').textContent = degraded;
+            document.getElementById('kpiAvgTemp').textContent = avgTemp;
+
+            // Filter nodes
+            const filtered = allNodes.filter(n => {
+                if (currentFilter === 'ALL') return true;
+                return n.healthStatus === currentFilter;
+            });
+
+            const container = document.getElementById('nodesContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        No hardware nodes match the selected filter.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(node => {
+                const isHealthy = node.healthStatus === 'HEALTHY';
+                const statusClass = isHealthy ? 'healthy' : 'degraded';
+                const badgeClass = isHealthy ? 'badge-healthy' : 'badge-degraded';
+
+                // Bar color logic
+                const gpuBarColor = node.gpuUtilizationPct > 85 ? 'bar-danger' : (node.gpuUtilizationPct > 60 ? 'bar-warning' : 'bar-healthy');
+                const memBarColor = node.gpuMemoryUtilizationPct > 85 ? 'bar-danger' : (node.gpuMemoryUtilizationPct > 60 ? 'bar-warning' : 'bar-healthy');
+                const tempColor = node.temperatureCelsius >= 80 ? '#fb7185' : (node.temperatureCelsius >= 70 ? '#fbbf24' : '#34d399');
+
+                return `
+                    <div class="node-card ${statusClass}">
+                        <div class="node-top">
+                            <div>
+                                <div class="node-id">${node.externalResourceId}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">NVIDIA Compute Node</div>
+                            </div>
+                            <span class="node-badge ${badgeClass}">${node.healthStatus}</span>
+                        </div>
+
+                        <!-- GPU Utilization -->
+                        <div class="metric-row">
+                            <div class="metric-label-row">
+                                <span>GPU Core Load</span>
+                                <span class="metric-val">${node.gpuUtilizationPct ?? 0}%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-bar ${gpuBarColor}" style="width: ${Math.min(100, node.gpuUtilizationPct || 0)}%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- GPU Memory -->
+                        <div class="metric-row">
+                            <div class="metric-label-row">
+                                <span>VRAM Memory</span>
+                                <span class="metric-val">${node.gpuMemoryUtilizationPct ?? 0}%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-bar ${memBarColor}" style="width: ${Math.min(100, node.gpuMemoryUtilizationPct || 0)}%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="card-stats">
+                            <div class="stat-item">
+                                <span class="stat-item-label">Core Temp</span>
+                                <span class="stat-item-val" style="color: ${tempColor};">${node.temperatureCelsius ?? 'N/A'}°C</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-item-label">Data Points</span>
+                                <span class="stat-item-val">${node.historicalSamplesCount ?? 0}</span>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="node-footer">
+                            <span class="samples-count">Earliest: ${formatDate(node.earliestHistoricalTimestamp)}</span>
+                            <button class="btn-history" onclick="viewHistory('${node.externalResourceId}')">Timeline &rarr;</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setFilter(filter, el) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            renderDashboard();
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        }
+
+        async function viewHistory(resourceId) {
+            const modal = document.getElementById('historyModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+
+            title.textContent = `Historical Timeline - ${resourceId}`;
+            body.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading timeline from telemetry service...</p>';
+            modal.classList.add('active');
+
+            try {
+                // Fetch historical window: past 7 days
+                const now = new Date();
+                const past = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+                const url = `/api/telemetry/resources/${resourceId}/history?startTime=${past.toISOString()}&endTime=${now.toISOString()}`;
+                
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+
+                if (!data.measurements || data.measurements.length === 0) {
+                    body.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No historical measurements recorded in this window.</p>';
+                    return;
+                }
+
+                body.innerHTML = `
+                    <div style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                        Total Recorded Samples: <strong>${data.sampleCount}</strong> &bull; Coverage: <strong>${data.coveragePct}%</strong> (${data.qualityAssessment})
+                    </div>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>GPU Load</th>
+                                <th>VRAM</th>
+                                <th>Temp</th>
+                                <th>Power</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.measurements.map(m => `
+                                <tr>
+                                    <td>${new Date(m.timestamp).toLocaleString()}</td>
+                                    <td>${m.gpuUtilizationPct}%</td>
+                                    <td>${m.gpuMemoryUtilizationPct}%</td>
+                                    <td>${m.temperatureCelsius}°C</td>
+                                    <td>${m.powerDrawWatts ?? 'N/A'}W</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (err) {
+                body.innerHTML = `<p style="color: #fb7185; text-align: center; padding: 2rem;">Error fetching history: ${err.message}</p>`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('historyModal').classList.remove('active');
+        }
+
+        // Close on Esc or click outside
+        window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        document.getElementById('historyModal').addEventListener('click', e => {
+            if (e.target.id === 'historyModal') closeModal();
+        });
+
+        // Initial Load and Auto-Refresh every 15s
+        fetchTelemetryData();
+        setInterval(fetchTelemetryData, 15000);
+    </script>
+</body>
+</html>
