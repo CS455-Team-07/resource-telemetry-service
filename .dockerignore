@@ -1,0 +1,5 @@
+target/
+.git/
+.mvn/
+*.ps1
+README.md
