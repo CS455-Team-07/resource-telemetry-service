@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The **Resource Telemetry Service** is a standalone, read-only hardware telemetry microservice designed for the Multi-Resource Lab Booking System (MRLBS) at IIT Kanpur. It provides point-in-time operating health snapshots and historical telemetry time-series for lab compute resources (such as DGX GPU nodes).
+The **Resource Telemetry Service** is a standalone, read-only hardware telemetry microservice designed for the Multi-Resource Lab Booking System (MRLBS) . It provides point-in-time operating health snapshots and historical telemetry time-series for lab compute resources (such as DGX GPU nodes).
 
 The primary MRLBS backend integrates with this service over HTTP to feed device-level utilization data to the **AI Request Review Agent**.
 
