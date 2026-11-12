@@ -816,9 +816,9 @@
             modal.classList.add('active');
 
             try {
-                // Fetch historical window: past 7 days
+                // Fetch historical window: past 35 days (covers full dataset back to early October)
                 const now = new Date();
-                const past = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+                const past = new Date(now.getTime() - 35 * 24 * 3600 * 1000);
                 const url = `/api/telemetry/resources/${resourceId}/history?startTime=${past.toISOString()}&endTime=${now.toISOString()}`;
                 
                 const res = await fetch(url);
@@ -830,9 +830,12 @@
                     return;
                 }
 
+                const sampleCount = data.measurements.length;
+                const quality = data.dataQuality || data.qualityAssessment || 'COMPLETE';
+
                 body.innerHTML = `
                     <div style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
-                        Total Recorded Samples: <strong>${data.sampleCount}</strong> &bull; Coverage: <strong>${data.coveragePct}%</strong> (${data.qualityAssessment})
+                        Total Recorded Samples: <strong>${sampleCount}</strong> &bull; Coverage: <strong>${data.coveragePct}%</strong> (${quality})
                     </div>
                     <table class="history-table">
                         <thead>
